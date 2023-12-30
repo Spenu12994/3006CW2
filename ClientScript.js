@@ -1,7 +1,5 @@
-
-
-function createSelection(modules){
-    let array = modules;
+function createSelection(books){
+    let array = books;
 
     //Create and append select list
     var selectList = document.createElement("select");
@@ -15,4 +13,10 @@ function createSelection(modules){
         option.text = array[i];
         selectList.appendChild(option);
     }
+}
+
+function getBooksList(){
+    fetch('http://localhost:9000/books')
+    .then(res => res.json())
+    .then(data=>console.log(data))
 }

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Library Checkout System</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="style.css">
+        <script>
+
+            //function to sort the booksColl contents by making array of books that aren't taken out
+            function sortBooks(data){
+                let booksArray=[];
+                
+                data.forEach((element)=>{
+                    if(element.TakenOut == 'n/a'){
+                        booksArray.push(element.Name);
+                    }
+                })
+                createSelection(booksArray);
+                console.log(booksArray);
+            }
+
+            function createSelection(books){
+                //Create and append select list
+                var selectList = document.getElementById("booksList");
+            
+                //Create and append the options
+                books.forEach((element)=>{
+                    var option = document.createElement("option");
+                    
+                    option.value = element._id;
+                    
+                    if(element.TakenOut != 'n/a'){
+                        option.disabled = 'disabled';
+                        option.text = element.Name + "(Taken out by " + element.TakenOut + ")";
+                    }
+                    else{
+                        option.text = element.Name;
+                    }
+                    selectList.appendChild(option);
+                })
+            }
+
+            function selectButton(){
+                //get our selection (value == _id)
+                let selectionList = document.getElementById("booksList");
+                let selection = selectionList.value;
+
+                //do something with the id
+                //UD
+                webSocket.send(selection.toString());
+            }
+            
+            //this function fetches our books database contents
+            // R - Read
+            function getBooksList(){
+                fetch('http://localhost:9000/books')
+                .then(res => res.json())
+                .then(data=>createSelection(data))
+            }
+
+            function sendMessageToServer(){
+                webSocket.send('hello')
+            }
+
+            const webSocket = new WebSocket('ws://localhost:456/');
+            webSocket.onmessage = (event) => {
+                console.log("server Says: " + event.data);
+            };
+
+        </script>
+    </head>
+    <body onload="getBooksList()">
+
+        <div>Hello!</div>
+
+        <select id="booksList"></select>
+        <button id="booksBtn" onclick="selectButton()">Select Book</button>
+        <button onclick="sendMessageToServer()">Send msg</button>
+    </body>
+</html>
