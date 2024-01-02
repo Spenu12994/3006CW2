@@ -45,6 +45,10 @@
             
                 console.log(books);
 
+                var option = document.createElement("option");
+                    
+                option.value = "Please Select";
+                option.text = "0";
                 //Create and append the options
                 books.forEach((element)=>{
                     var option = document.createElement("option");
@@ -59,6 +63,36 @@
                         option.text = element.Name;
                     }
                     selectList.appendChild(option);
+                })
+            }
+
+            
+            function createReturn(books){
+                //Create and append select list
+                var selectList = document.getElementById("booksReturnList");
+
+                //remove any items in list if already here
+                let listLen = selectList.length; 
+                for(let i = 1; i <= listLen; i++){
+                    selectList.remove(0);
+                }
+            
+                console.log(books);
+
+                var option = document.createElement("option");
+                    
+                option.value = "Please Select";
+                option.text = "0";
+                //Create and append the options
+                books.forEach((element)=>{
+                    console.log(element.TakenOut + currUsr);
+                    if(element.TakenOut == currUsr){
+                        var option = document.createElement("option");
+                        option.text = element.Name + "(Taken out by " + element.TakenOut + ")";
+                        option.value = element._id;
+                        selectList.appendChild(option);
+                    }
+
                 })
             }
 
@@ -77,13 +111,34 @@
 
                 webSocket.send(JSON.stringify(messageObject));
             }
-            
+
+            function selectReturnButton(){
+                //get our selection (value == _id)
+                let selectionList = document.getElementById("booksReturnList");
+                let selection = selectionList.value;
+
+                //do something with the id
+                //UD
+                let messageObject = {
+                    messageType: "return",
+                    username: currUsr,
+                    bookID: selection.toString() 
+                }
+
+                webSocket.send(JSON.stringify(messageObject));
+            }
+
+            function createLists(data){
+                createSelection(data);
+                createReturn(data);
+            }
+
             //this function fetches our books database contents
             // R - Read
             function getBooksList(){
                 fetch('http://localhost:9000/books')
                 .then(res => res.json())
-                .then(data=>createSelection(data))
+                .then(data=>createLists(data))
             }
 
             function sendMessageToServer(){
@@ -115,5 +170,8 @@
         <select id="booksList"></select>
         <button id="booksBtn" onclick="selectButton()">Select Book</button>
         <button id="booksBtn" onclick="getBooksList()">Refresh</button>
+        <br>
+        <select id="booksReturnList"></select>
+        <button id="booksBtn" onclick="selectReturnButton()">Select Book</button>
     </body>
 </html>

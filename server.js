@@ -24,7 +24,7 @@ let loginSchema = new mongoose.Schema({_id: mongoose.ObjectId, username: String,
 let loginModel = mongoose.model("logins", loginSchema);
 
 // Define a Schema.
-let bookSchema = new mongoose.Schema({_id: mongoose.ObjectId, Name: String, TakenOut: String});
+let bookSchema = new mongoose.Schema({_id: mongoose.Schema.ObjectId, Name: String, TakenOut: String, id: String});
 // Define a Model.
 let bookModel = mongoose.model("books", bookSchema);
 
@@ -36,6 +36,8 @@ let loginList;
 
 allBooksRoute();
 allLoginRoute();
+
+
 
 //get login details
 async function listAllLogin() {
@@ -60,10 +62,41 @@ async function allBooksRoute() {
 }
 
 async function checkoutBook(id, user){
-    let bookListing = await bookModel.findOne({_id: new ObjectId(id)});
-    bookListing.TakenOut = user;
-    await bookListing.save();
+    console.log("updating");
+    bookModel.findById(id).then(
+        function(value){
+            value.TakenOut = user;
+            
+            value.save();
+            allBooksRoute();
+        },
+        function(error){
+            console.log(error);
+        }
+    );
 }
+
+async function ReturnBook(id){
+        console.log("returning");
+        bookModel.findById(id).then(
+            function(value){
+                value.TakenOut = "n/a";
+                
+                value.save();
+                allBooksRoute();
+            },
+            function(error){
+                console.log(error);
+            }
+        );
+
+
+    }
+
+async function refreshBook(){
+        bookModel = mongoose.model("books", bookSchema);
+        await allBooksRoute();
+    }
 
 
 //check login details
@@ -110,9 +143,9 @@ const { WebSocketServer } = require('ws')
 const sockserver = new WebSocketServer({ port: 456 })
 
 sockserver.on('connection', ws => {
- console.log('New client connected!')
-ws.binaryType = "arraybuffer";
-ws.binaryType = "blob";
+    console.log('New client connected!')
+    ws.binaryType = "arraybuffer";
+    ws.binaryType = "blob";
 
 
  ws.send('connection established')
@@ -157,24 +190,35 @@ ws.binaryType = "blob";
         }
         else if(recievedMessage.messageType == "selection"){
             //take out the book
-            checkoutBook(recievedMessage.id, recievedMessage.username);
-
+            if(recievedMessage.bookID != 0){
+                checkoutBook(recievedMessage.bookID, recievedMessage.username);
+            }
             sockserver.clients.forEach(client => {
+                allBooksRoute();
                 console.log('distributing refresh');
                 client.send('refresh');
             })
 
 
         }
-        
+
+        else if(recievedMessage.messageType == "return"){
+            //take out the book
+            if(recievedMessage.bookID != 0){
+                ReturnBook(recievedMessage.bookID);
+            }
+            sockserver.clients.forEach(client => {
+                refreshBook();
+                console.log('distributing refresh');
+                client.send('refresh');
+            })
+        }    
     }
     catch{
         recievedMessage = event.data;
         console.log("recieved string");
     }
     
-
-    console.log(recievedMessage);
  
 
    sockserver.clients.forEach(client => {
@@ -186,5 +230,3 @@ ws.binaryType = "blob";
    console.log('websocket error')
  }
 });
-
-
