@@ -12,6 +12,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <script>
 
+            //global variable
+            let usrInp;
 
             const date = new Date();
             let userId;
@@ -30,6 +32,10 @@
                     if(recievedMessage.id == userId){
                         if(recievedMessage.result == 1){
                             document.getElementById("failTXT").innerHTML = "Login Success! Rerouting now...";
+
+                            //use session storage to pass username to index
+                            sessionStorage.setItem('user', usrInp);
+
                             window.location.href='/success'
                         }
                         else{
@@ -46,7 +52,7 @@
 
             function enterDetails(){
 
-                let usrInp = document.getElementById("usernameINPT").value;
+                usrInp = document.getElementById("usernameINPT").value;
                 let passInp = document.getElementById("passwordINPT").value;
                 
                 let loginObject= {

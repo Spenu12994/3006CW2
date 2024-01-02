@@ -60,7 +60,7 @@ async function allBooksRoute() {
 }
 
 async function checkoutBook(id, user){
-    let bookListing = await bookModel.findOne({_id: id});
+    let bookListing = await bookModel.findOne({_id: new ObjectId(id)});
     bookListing.TakenOut = user;
     await bookListing.save();
 }
@@ -131,29 +131,41 @@ ws.binaryType = "blob";
 
         let funcResult;
         
-        //run function with promise
-        checkLoginDetails(recievedMessage.username,recievedMessage.password, recievedMessage.id).then(
-            function(value){
-                //if we get our value
-                funcResult = value;
+        if(recievedMessage.messageType == "login"){
+            //run function with promise
+            checkLoginDetails(recievedMessage.username,recievedMessage.password, recievedMessage.id).then(
+                function(value){
+                    //if we get our value
+                    funcResult = value;
 
-                //populate table with value and messenger id
-                let resultObj = {
-                    result: funcResult,
-                    id: recievedMessage.id
+                    //populate table with value and messenger id
+                    let resultObj = {
+                        result: funcResult,
+                        id: recievedMessage.id
+                    }
+
+                    //send the success code to all clients (this will be filtered based on their ID)
+                    sockserver.clients.forEach(client => {
+                        client.send(JSON.stringify(resultObj));
+                    })
+                
+                },
+                function(error){
+                    console.log("error" + error);
                 }
+            )
+        }
+        else if(recievedMessage.messageType == "selection"){
+            //take out the book
+            checkoutBook(recievedMessage.id, recievedMessage.username);
 
-                //send the success code to all clients (this will be filtered based on their ID)
-                sockserver.clients.forEach(client => {
-                    client.send(JSON.stringify(resultObj));
-                })
-            
-            },
-            function(error){
-                console.log("error" + error);
-            }
-        )
-        
+            sockserver.clients.forEach(client => {
+                console.log('distributing refresh');
+                client.send('refresh');
+            })
+
+
+        }
         
     }
     catch{

@@ -13,6 +13,15 @@
         <link href="style.css">
         <script>
 
+            let currUsr;
+
+            function onloadFunc(){
+                getBooksList();
+                currUsr = sessionStorage.getItem('user');
+                let userTXT = document.getElementById('usernameTXT');
+                userTXT.innerHTML = "Hello " + currUsr;
+            }
+
             //function to sort the booksColl contents by making array of books that aren't taken out
             function sortBooks(data){
                 let booksArray=[];
@@ -62,9 +71,11 @@
                 //UD
                 let messageObject = {
                     messageType: "selection",
+                    username: currUsr,
                     bookID: selection.toString() 
                 }
-                webSocket.send(messageObject);
+
+                webSocket.send(JSON.stringify(messageObject));
             }
             
             //this function fetches our books database contents
@@ -90,13 +101,16 @@
             const webSocket = new WebSocket('ws://localhost:456/');
             webSocket.onmessage = (event) => {
                 console.log("server Says: " + event.data);
+                if(event.data == 'refresh'){
+                    getBooksList();
+                }
             };
 
         </script>
     </head>
-    <body onload="getBooksList()">
+    <body onload="onloadFunc()">
 
-        <div>Hello!</div>
+        <div id="usernameTXT">Hello!</div>
 
         <select id="booksList"></select>
         <button id="booksBtn" onclick="selectButton()">Select Book</button>
