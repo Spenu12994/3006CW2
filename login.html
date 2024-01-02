@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Library System Login Page</title>
+        <meta name="description" content="The log in page for the library system">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script>
+
+
+            const date = new Date();
+            let userId;
+
+            function getUniqueID(){
+                userId = date.getTime();
+                console.log(userId);
+            }
+
+            const webSocket = new WebSocket('ws://localhost:456/');
+            webSocket.onmessage = (event) => {
+                //this section recieves server login success, and if the id matches, moves user onto next stage
+                try{
+                    recievedMessage = JSON.parse(event.data);
+
+                    if(recievedMessage.id == userId){
+                        if(recievedMessage.result == 1){
+                            document.getElementById("failTXT").innerHTML = "Login Success! Rerouting now...";
+                            window.location.href='/success'
+                        }
+                        else{
+                            document.getElementById("failTXT").innerHTML = "Login Fail!";
+                        }
+                    }
+
+                }
+                catch{
+
+                }            
+                console.log("server Says: " + event.data);
+            };
+
+            function enterDetails(){
+
+                let usrInp = document.getElementById("usernameINPT").value;
+                let passInp = document.getElementById("passwordINPT").value;
+                
+                let loginObject= {
+                    username: usrInp,
+                    password: passInp,
+                    id: userId,
+                    messageType: "login"
+                }
+
+                console.log("Sending: ");
+                console.log(JSON.stringify(loginObject));
+                webSocket.send(JSON.stringify(loginObject));
+
+                return("Logged In");
+            }
+        </script>
+    </head>
+    <body onload="getUniqueID()">
+
+        <div id="failTXT" style="color:red;"></div>
+
+
+        <div>
+            <label for="usernameINPT">Username:</label>
+            <input type="text" placeholder="Enter Username..." name="usernameINPT" id="usernameINPT" required>
+
+            <label for="passwordINPT">Password:</label>
+            <input type="text" placeholder="Enter Password..." name="passwordINPT" id="passwordINPT" required>
+
+            <button onclick="enterDetails()">Enter</button>
+        </div>
+        
+        
+    </body>
+</html>

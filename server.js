@@ -9,21 +9,48 @@ let socketIo = require("socket.io");
 var app = express();
 let server = http.createServer(app);
 
+
+
+
+
 // Connect to MongoDB.
+
 let url = "mongodb+srv://spencerunderhill:HfENVb6xReiYYmx4@cluster0.nm23cgo.mongodb.net/LibraryDB?retryWrites=true&w=majority";
 mongoose.connect(url, {useUnifiedTopology: true, useNewUrlParser: true});
 
 // Define a Schema.
-let moduleSchema = new mongoose.Schema({_id: mongoose.ObjectId, Name: String, TakenOut: String});
+let loginSchema = new mongoose.Schema({_id: mongoose.ObjectId, username: String, password: String});
 // Define a Model.
-let Module = mongoose.model("books", moduleSchema);
+let loginModel = mongoose.model("logins", loginSchema);
+
+// Define a Schema.
+let bookSchema = new mongoose.Schema({_id: mongoose.ObjectId, Name: String, TakenOut: String});
+// Define a Model.
+let bookModel = mongoose.model("books", bookSchema);
+
+
+
 
 let bookList;
+let loginList;
 
 allBooksRoute();
+allLoginRoute();
 
+//get login details
+async function listAllLogin() {
+    let login = await loginModel.find();
+    return login;
+}
+
+async function allLoginRoute() {
+    let login = await listAllLogin();
+    loginList = login;
+}
+
+//get books
 async function listAllBooks() {
-    let books = await Module.find();
+    let books = await bookModel.find();
     return books;
 }
 
@@ -32,7 +59,39 @@ async function allBooksRoute() {
     bookList = books;
 }
 
+async function checkoutBook(id, user){
+    let bookListing = await bookModel.findOne({_id: id});
+    bookListing.TakenOut = user;
+    await bookListing.save();
+}
+
+
+//check login details
+async function checkLoginDetails(user, pass){
+
+    let foundLogin = false;
+    loginList.forEach((element)=>{
+        if(element.username == user){
+            if(element.password == pass){
+                foundLogin = true;
+            }
+        }
+    });
+    if(foundLogin == true){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+}
+
+
+
 app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/login.html');
+});
+
+app.get('/success', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
@@ -54,18 +113,57 @@ sockserver.on('connection', ws => {
  console.log('New client connected!')
 ws.binaryType = "arraybuffer";
 ws.binaryType = "blob";
+
+
  ws.send('connection established')
+
+
  ws.on('close', () => console.log('Client has disconnected!'))
+
+
  ws.onmessage = function(event){
 
-    if(typeof event.data === String){
+    let recievedMessage = event.data;
+
+    try{
+        
+        recievedMessage = JSON.parse(event.data);
+
+        let funcResult;
+        
+        //run function with promise
+        checkLoginDetails(recievedMessage.username,recievedMessage.password, recievedMessage.id).then(
+            function(value){
+                //if we get our value
+                funcResult = value;
+
+                //populate table with value and messenger id
+                let resultObj = {
+                    result: funcResult,
+                    id: recievedMessage.id
+                }
+
+                //send the success code to all clients (this will be filtered based on their ID)
+                sockserver.clients.forEach(client => {
+                    client.send(JSON.stringify(resultObj));
+                })
+            
+            },
+            function(error){
+                console.log("error" + error);
+            }
+        )
+        
+        
+    }
+    catch{
+        recievedMessage = event.data;
         console.log("recieved string");
     }
+    
 
-   console.log(typeof event.data);
-   let recievedMessage = event.data;
-   
-   console.log(recievedMessage);
+    console.log(recievedMessage);
+ 
 
    sockserver.clients.forEach(client => {
      console.log(`distributing message: "Hi There"`)

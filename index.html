@@ -16,20 +16,26 @@
             //function to sort the booksColl contents by making array of books that aren't taken out
             function sortBooks(data){
                 let booksArray=[];
-                
                 data.forEach((element)=>{
                     if(element.TakenOut == 'n/a'){
                         booksArray.push(element.Name);
                     }
                 })
                 createSelection(booksArray);
-                console.log(booksArray);
             }
 
             function createSelection(books){
                 //Create and append select list
                 var selectList = document.getElementById("booksList");
+
+                //remove any items in list if already here
+                let listLen = selectList.length; 
+                for(let i = 1; i <= listLen; i++){
+                    selectList.remove(0);
+                }
             
+                console.log(books);
+
                 //Create and append the options
                 books.forEach((element)=>{
                     var option = document.createElement("option");
@@ -54,7 +60,11 @@
 
                 //do something with the id
                 //UD
-                webSocket.send(selection.toString());
+                let messageObject = {
+                    messageType: "selection",
+                    bookID: selection.toString() 
+                }
+                webSocket.send(messageObject);
             }
             
             //this function fetches our books database contents
@@ -67,6 +77,14 @@
 
             function sendMessageToServer(){
                 webSocket.send('hello')
+            }
+
+            function sendObjectToServer(){
+                let testObj = {
+                    name: "Jack",
+                    Job: "books" 
+                }
+                webSocket.send(JSON.stringify(testObj));
             }
 
             const webSocket = new WebSocket('ws://localhost:456/');
@@ -82,6 +100,6 @@
 
         <select id="booksList"></select>
         <button id="booksBtn" onclick="selectButton()">Select Book</button>
-        <button onclick="sendMessageToServer()">Send msg</button>
+        <button id="booksBtn" onclick="getBooksList()">Refresh</button>
     </body>
 </html>
