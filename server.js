@@ -9,10 +9,6 @@ let socketIo = require("socket.io");
 var app = express();
 let server = http.createServer(app);
 
-
-
-
-
 // Connect to MongoDB.
 
 let url = "mongodb+srv://spencerunderhill:HfENVb6xReiYYmx4@cluster0.nm23cgo.mongodb.net/LibraryDB?retryWrites=true&w=majority";
@@ -126,6 +122,10 @@ app.get('/', (req, res) => {
 
 app.get('/success', (req, res) => {
     res.sendFile(__dirname + '/index.html');
+});
+
+app.get('/hello', (req, res) => {
+    response.send("Hello!");
 });
 
 app.use(express.static('public'));
