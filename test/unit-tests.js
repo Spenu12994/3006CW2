@@ -43,8 +43,14 @@ suite("Suite routes", function(){
         })
     })
 
-    test("Test login function", function() {
+    test("Test login function (good login)", function() {
         let app = server.app;
-        return Promise.resolve(functions.checkLoginDetailTest()).should.eventually.equal(1);
+        return Promise.resolve(functions.checkLoginDetailTest("test1", "testpass1")).should.eventually.equal(1);
+        
     })
+
+    test("Test login function (bad login)", function() {
+        let app = server.app;
+        return Promise.resolve(functions.checkLoginDetailTest("test1", "wrongPassword")).should.eventually.equal(0);
+    });
 });
