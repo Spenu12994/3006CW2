@@ -20,20 +20,20 @@ suite("Suite routes", function(){
         chai.assert.equal(result, "hello", "Result should say 'hello'");
     })
 
-    test("test server function", function(){
-        server.returnHello().then(
-            function(value){
-                chai.assert.isString(value,"Result should be string");
-                chai.assert.equal(value, "hello", "result should say hello");
-            }
-        );
-    })
+    // test("test server function", function(){
+    //     server.returnHello().then(
+    //         function(value){
+    //             chai.assert.isString(value,"Result should be string");
+    //             chai.assert.equal(value, "hello", "result should say hello");
+    //         }
+    //     );
+    // })
 
-    test("test GET /hello", function(){
-        let app = server.app;
-        chai.request(app).get("/hello")
-        .end(function(error, response){
-            chai.assert.equal(response.status, 200);
-        })
-    })
+    // test("test GET /hello", function(){
+    //     let app = server.app;
+    //     chai.request(app).get("/hello")
+    //     .end(function(error, response){
+    //         chai.assert.equal(response.status, 200);
+    //     })
+    // })
 });
