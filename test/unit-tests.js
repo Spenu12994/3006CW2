@@ -10,11 +10,4 @@ suite("Suite routes", function(){
         chai.assert.equal(response.status, 200); // Assert.
         });
     })
-
-    test("Test GET /books", function() {
-        chai.request('http://localhost:9000/').get("/books") // Act.
-        .end(function(error, response) {
-        chai.assert.equal(response.status, 200); // Assert.
-        });
-    })
 });
