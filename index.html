@@ -48,8 +48,10 @@
 
                 var option = document.createElement("option");
                     
-                option.value = "Please Select";
-                option.text = "0";
+                option.value = "0";
+                option.text = "Please Select";
+                selectList.appendChild(option);
+
                 //Create and append the options
                 books.forEach((element)=>{
                     var option = document.createElement("option");
@@ -82,8 +84,10 @@
 
                 var option = document.createElement("option");
                     
-                option.value = "Please Select";
-                option.text = "0";
+                option.value = "0";
+                option.text = "Please Select";
+                selectList.appendChild(option);
+
                 //Create and append the options
                 books.forEach((element)=>{
                     console.log(element.TakenOut + currUsr);
@@ -101,32 +105,49 @@
                 //get our selection (value == _id)
                 let selectionList = document.getElementById("booksList");
                 let selection = selectionList.value;
+                let responseTxt = document.getElementById("userResponse");
 
-                //do something with the id
-                //UD
-                let messageObject = {
-                    messageType: "selection",
-                    username: currUsr,
-                    bookID: selection.toString() 
+                if(selection != "0"){
+
+                    //do something with the id
+                    //UD
+                    let messageObject = {
+                        messageType: "selection",
+                        username: currUsr,
+                        bookID: selection.toString() 
+                    }
+
+                    webSocket.send(JSON.stringify(messageObject));
+                    responseTxt.innerHTML="";
+                }
+                else{
+                    
+                    responseTxt.innerHTML="Please Select a valid option..";
                 }
 
-                webSocket.send(JSON.stringify(messageObject));
             }
 
             function selectReturnButton(){
                 //get our selection (value == _id)
                 let selectionList = document.getElementById("booksReturnList");
                 let selection = selectionList.value;
+                let responseTxt = document.getElementById("userResponse");
+                if(selection != "0"){
 
-                //do something with the id
-                //UD
-                let messageObject = {
-                    messageType: "return",
-                    username: currUsr,
-                    bookID: selection.toString() 
+                    //do something with the id
+                    //UD
+                    let messageObject = {
+                        messageType: "return",
+                        username: currUsr,
+                        bookID: selection.toString() 
+                    }
+
+                    webSocket.send(JSON.stringify(messageObject));
+                    responseTxt.innerHTML="";
                 }
-
-                webSocket.send(JSON.stringify(messageObject));
+                else{
+                    responseTxt.innerHTML="Please Select a valid option..";
+                }
             }
 
             function createLists(data){
@@ -178,6 +199,7 @@
         
         <div id="usernameTXT">Hello!</div>
 
+        <div id="userResponse" style="color: red;"></div>
         <select id="booksList"></select>
         <button id="booksBtn" onclick="selectButton()">Select Book</button>
         <button id="booksBtn" onclick="getBooksList()">Refresh</button>

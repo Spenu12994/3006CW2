@@ -17,13 +17,13 @@ let url = "mongodb+srv://spencerunderhill:HfENVb6xReiYYmx4@cluster0.nm23cgo.mong
 mongoose.connect(url, {useUnifiedTopology: true, useNewUrlParser: true});
 
 // Define a Schema.
-let loginSchema = new mongoose.Schema({_id: mongoose.ObjectId, username: String, password: String});
+let loginSchema = new mongoose.Schema({_id: mongoose.Schema.ObjectId, username: String, password: String});
 // Define a Model.
 let loginModel = mongoose.model("logins", loginSchema);
 
 // Define a Schema.
 let bookSchema = new mongoose.Schema({_id: mongoose.Schema.ObjectId, Name: String, TakenOut: String, id: String});
-// Define a Model.
+// Define a Model.D
 let bookModel = mongoose.model("books", bookSchema);
 
 
@@ -50,6 +50,7 @@ async function allLoginRoute() {
 
 //get books
 async function listAllBooks() {
+    bookModel = mongoose.model("books", bookSchema)
     let books = await bookModel.find();
     return books;
 }
@@ -60,16 +61,19 @@ async function allBooksRoute() {
 }
 
 async function checkoutBook(id, user){
-    console.log("updating");
+    
     bookModel.findById(id).then(
         function(value){
+            console.log("updating " + value);
             value.TakenOut = user;
-            
-            value.save();
-            allBooksRoute();
+            value.save().then(
+                function(value){
+                    refreshBook();
+                }
+            );
         },
         function(error){
-            console.log(error);
+            console.log("error" + error);
         }
     );
 }
@@ -80,11 +84,16 @@ async function ReturnBook(id){
             function(value){
                 value.TakenOut = "n/a";
                 
-                value.save();
-                allBooksRoute();
+                value.save().then(
+                    function(value){
+                        refreshBook();
+                    }
+                );
+                
+                
             },
             function(error){
-                console.log(error);
+                console.log("error" + error);
             }
         );
 
@@ -94,12 +103,12 @@ async function ReturnBook(id){
 async function refreshBook(){
         bookModel = mongoose.model("books", bookSchema);
         await allBooksRoute();
+        await issueRefresh();
     }
 
 
 //check login details
-async function checkLoginDetails(user, pass){
-
+async function checkLoginDetails(user, pass, loginList){
     let foundLogin = false;
     loginList.forEach((element)=>{
         if(element.username == user){
@@ -121,6 +130,12 @@ async function returnHello(){
     return functions.returnHello();
 }
 
+async function issueRefresh(){
+    sockserver.clients.forEach(client => {
+        console.log('distributing refresh');
+        client.send('refresh');
+    });
+}
 
 
 app.get('/', (req, res) => {
@@ -138,8 +153,8 @@ app.get('/hello', (req, res) => {
 app.use(express.static('public'));
 
 app.use('/books', (req,res)=>{
+    allBooksRoute();
     res.json(bookList);
-
 })
 
 app.listen(9000, () => {
@@ -174,7 +189,7 @@ sockserver.on('connection', ws => {
         
         if(recievedMessage.messageType == "login"){
             //run function with promise
-            checkLoginDetails(recievedMessage.username,recievedMessage.password, recievedMessage.id).then(
+            checkLoginDetails(recievedMessage.username,recievedMessage.password, loginList).then(
                 function(value){
                     //if we get our value
                     funcResult = value;
@@ -198,28 +213,15 @@ sockserver.on('connection', ws => {
         }
         else if(recievedMessage.messageType == "selection"){
             //take out the book
-            if(recievedMessage.bookID != 0){
-                checkoutBook(recievedMessage.bookID, recievedMessage.username);
-            }
-            sockserver.clients.forEach(client => {
-                allBooksRoute();
-                console.log('distributing refresh');
-                client.send('refresh');
-            })
+            checkoutBook(recievedMessage.bookID, recievedMessage.username);
 
-
+            
         }
 
         else if(recievedMessage.messageType == "return"){
             //take out the book
-            if(recievedMessage.bookID != 0){
-                ReturnBook(recievedMessage.bookID);
-            }
-            sockserver.clients.forEach(client => {
-                refreshBook();
-                console.log('distributing refresh');
-                client.send('refresh');
-            })
+            
+            ReturnBook(recievedMessage.bookID)
         }    
     }
     catch{
@@ -230,7 +232,7 @@ sockserver.on('connection', ws => {
  
 
    sockserver.clients.forEach(client => {
-     console.log(`distributing message: "Hi There"`)
+     console.log(`Recieved Message`)
      client.send(`Hi There`)
    })
  }
@@ -241,3 +243,4 @@ sockserver.on('connection', ws => {
 
 module.exports.app = app;
 module.exports.returnHello = returnHello;
+module.exports.checkLoginDetails = checkLoginDetails;
