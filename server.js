@@ -118,7 +118,6 @@ async function checkLoginDetails(user, pass){
 
 //testing
 async function returnHello(){
-
     return functions.returnHello();
 }
 
@@ -239,3 +238,6 @@ sockserver.on('connection', ws => {
    console.log('websocket error')
  }
 });
+
+module.exports.app = app;
+module.exports.returnHello = returnHello;
