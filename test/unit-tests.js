@@ -1,16 +1,20 @@
-import * as chai from 'chai';
-import chaiHttp from 'chai-http'
-
-chai.use(chaiHttp);
+var chai = require('chai');
+var chaiHttp = require('chai-http');
 let server = require("../server");
+chai.use(chaiHttp);
 
-
-suite("suire routes", function(){
-    test("Test GET /hello", function(){
-        let app = server.app;
-        chai.request(app).get("/hello")
-            .end(function(error, response){
-                chai.assert.equal(response.status, 200);
-            })
+suite("Suite routes", function(){
+    test("Test GET /hello", function() {
+        chai.request('http://localhost:9000/').get("/hello") // Act.
+        .end(function(error, response) {
+        chai.assert.equal(response.status, 200); // Assert.
+        });
     })
-})
+
+    test("Test GET /books", function() {
+        chai.request('http://localhost:9000/').get("/books") // Act.
+        .end(function(error, response) {
+        chai.assert.equal(response.status, 200); // Assert.
+        });
+    })
+});

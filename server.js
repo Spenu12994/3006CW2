@@ -9,6 +9,8 @@ let socketIo = require("socket.io");
 var app = express();
 let server = http.createServer(app);
 
+let functions = require("./functions");
+
 // Connect to MongoDB.
 
 let url = "mongodb+srv://spencerunderhill:HfENVb6xReiYYmx4@cluster0.nm23cgo.mongodb.net/LibraryDB?retryWrites=true&w=majority";
@@ -114,6 +116,12 @@ async function checkLoginDetails(user, pass){
     }
 }
 
+//testing
+async function returnHello(){
+
+    return functions.returnHello();
+}
+
 
 
 app.get('/', (req, res) => {
@@ -125,13 +133,14 @@ app.get('/success', (req, res) => {
 });
 
 app.get('/hello', (req, res) => {
-    response.send("Hello!");
+    res.send("Hello!");
 });
 
 app.use(express.static('public'));
 
 app.use('/books', (req,res)=>{
     res.json(bookList);
+
 })
 
 app.listen(9000, () => {
