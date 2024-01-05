@@ -14,7 +14,10 @@ let functions = require("./functions");
 // Connect to MongoDB.
 
 let url = "mongodb+srv://spencerunderhill:HfENVb6xReiYYmx4@cluster0.nm23cgo.mongodb.net/LibraryDB?retryWrites=true&w=majority";
-mongoose.connect(url, {useUnifiedTopology: true, useNewUrlParser: true});
+
+
+
+
 
 // Define a Schema.
 let loginSchema = new mongoose.Schema({_id: mongoose.Schema.ObjectId, username: String, password: String});
@@ -25,17 +28,20 @@ let loginModel = mongoose.model("logins", loginSchema);
 let bookSchema = new mongoose.Schema({_id: mongoose.Schema.ObjectId, Name: String, TakenOut: String, id: String});
 // Define a Model.D
 let bookModel = mongoose.model("books", bookSchema);
-
-
-
-
 let bookList;
 let loginList;
-
-allBooksRoute();
-allLoginRoute();
+startup();
 
 
+
+async function startup(){
+    mongoose.connect(url, {useUnifiedTopology: true, useNewUrlParser: true}).then(
+        function(value){
+            allBooksRoute();
+            allLoginRoute();
+        }
+    );
+}
 
 //get login details
 async function listAllLogin() {
