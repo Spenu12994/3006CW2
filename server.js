@@ -16,9 +16,6 @@ let functions = require("./functions");
 let url = "mongodb+srv://spencerunderhill:HfENVb6xReiYYmx4@cluster0.nm23cgo.mongodb.net/LibraryDB?retryWrites=true&w=majority";
 
 
-
-
-
 // Define a Schema.
 let loginSchema = new mongoose.Schema({_id: mongoose.Schema.ObjectId, username: String, password: String});
 // Define a Model.
@@ -143,6 +140,12 @@ async function issueRefresh(){
     });
 }
 
+function closeServer(){
+    server.close(()=>{
+        process.exit(0);
+    });
+}
+
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/login.html');
@@ -250,3 +253,4 @@ sockserver.on('connection', ws => {
 module.exports.app = app;
 module.exports.returnHello = returnHello;
 module.exports.checkLoginDetails = checkLoginDetails;
+module.exports.closeServer = closeServer;

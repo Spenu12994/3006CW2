@@ -19,6 +19,11 @@ console.log("this is the server" + server);
 
 
 suite("Suite routes", function(){
+
+    suiteSetup(function(){
+        
+    });
+
     test("Test hello function", function() {
         let result = functions.returnHello();
         chai.assert.isString(result, "Result should be string");
@@ -44,13 +49,16 @@ suite("Suite routes", function(){
     })
 
     test("Test login function (good login)", function() {
-        let app = server.app;
         return Promise.resolve(functions.checkLoginDetailTest("test1", "testpass1")).should.eventually.equal(1);
         
     })
 
     test("Test login function (bad login)", function() {
-        let app = server.app;
         return Promise.resolve(functions.checkLoginDetailTest("test1", "wrongPassword")).should.eventually.equal(0);
+    });
+
+    suiteTeardown(function(){
+        console.log("teardown");
+        server.closeServer();
     });
 });
