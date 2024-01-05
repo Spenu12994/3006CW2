@@ -141,9 +141,11 @@ async function issueRefresh(){
 }
 
 function closeServer(){
+    sockserver.close();
     server.close(()=>{
         process.exit(0);
     });
+    
 }
 
 
