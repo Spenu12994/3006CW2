@@ -36,7 +36,13 @@
                             //use session storage to pass username to index
                             sessionStorage.setItem('user', usrInp);
 
-                            window.location.href='/success'
+
+                            if(usrInp == 'admin'){
+                                window.location.href='/successadmin';
+                            }
+                            else{
+                                window.location.href='/success';
+                            }
                         }
                         else{
                             document.getElementById("failTXT").innerHTML = "Login Fail!";

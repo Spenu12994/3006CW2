@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Library Checkout System</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="style.css">
+        <link rel="stylesheet" href="https://unpkg.com/mocha/mocha.css" />
+        <script>
+
+            let currUsr;
+
+            function onloadFunc(){
+                getLists();
+                currUsr = sessionStorage.getItem('user');
+                let userTXT = document.getElementById('usernameTXT');
+                userTXT.innerHTML = "Hello " + currUsr;
+            }
+
+            //function to sort the booksColl contents by making array of books that aren't taken out
+            function sortBooks(data){
+                let booksArray=[];
+                data.forEach((element)=>{
+                    if(element.TakenOut == 'n/a'){
+                        booksArray.push(element.Name);
+                    }
+                })
+                createSelection(booksArray);
+            }
+
+
+
+            //Creates -----------------------
+            function createSelection(books){
+                //Create and append select list
+                var selectList = document.getElementById("booksList");
+
+                //remove any items in list if already here
+                let listLen = selectList.length; 
+                for(let i = 1; i <= listLen; i++){
+                    selectList.remove(0);
+                }
+            
+                console.log(books);
+
+                var option = document.createElement("option");
+                    
+                option.value = "0";
+                option.text = "Please Select";
+                selectList.appendChild(option);
+
+                //Create and append the options
+                books.forEach((element)=>{
+                    var option = document.createElement("option");
+                    
+                    option.value = element._id;
+                    
+                    if(element.TakenOut != 'n/a'){
+                        option.text = element.Name + "(Taken out by " + element.TakenOut + ")";
+                    }
+                    else{
+                        option.text = element.Name;
+                    }
+                    selectList.appendChild(option);
+                })
+            }
+
+            
+            function createReturn(books){
+                //Create and append select list
+                var selectList = document.getElementById("booksReturnList");
+
+                //remove any items in list if already here
+                let listLen = selectList.length; 
+                for(let i = 1; i <= listLen; i++){
+                    selectList.remove(0);
+                }
+            
+                console.log(books);
+
+                var option = document.createElement("option");
+                    
+                option.value = "0";
+                option.text = "Please Select";
+                selectList.appendChild(option);
+
+                //Create and append the options
+                books.forEach((element)=>{
+                    if(element.TakenOut != 'n/a'){
+                        var option = document.createElement("option");
+                        option.text = element.Name + "(Taken out by " + element.TakenOut + ")";
+                        option.value = element._id;
+                        selectList.appendChild(option);
+                    }
+
+                })
+            }
+
+            function createDeleteBooks(books){
+                //Create and append select list
+                var selectList = document.getElementById("booksDeleteList");
+
+                //remove any items in list if already here
+                let listLen = selectList.length; 
+                for(let i = 1; i <= listLen; i++){
+                    selectList.remove(0);
+                }
+            
+                console.log(books);
+
+                var option = document.createElement("option");
+                    
+                option.value = "0";
+                option.text = "Please Select";
+                selectList.appendChild(option);
+
+                //Create and append the options
+                books.forEach((element)=>{
+                    var option = document.createElement("option");
+                    
+                    option.value = element._id;
+                    
+                    if(element.TakenOut != 'n/a'){
+                        option.text = element.Name + "(Taken out by " + element.TakenOut + ")";
+                    }
+                    else{
+                        option.text = element.Name;
+                    }
+                    selectList.appendChild(option);
+                })
+            }
+
+            function createDeleteUser(users){
+                //Create and append select list
+                var selectList = document.getElementById("userDeleteList");
+
+                //remove any items in list if already here
+                let listLen = selectList.length; 
+                for(let i = 1; i <= listLen; i++){
+                    selectList.remove(0);
+                }
+            
+                console.log(users);
+
+                var option = document.createElement("option");
+                    
+                option.value = "0";
+                option.text = "Please Select";
+                selectList.appendChild(option);
+
+                for(var i = 0; i < users.length; i++){
+                    var option = document.createElement("option");
+                    
+                    option.value = users[i];
+                    option.text = users[i];
+                    
+                    selectList.appendChild(option);
+                }
+
+            }
+
+
+            //Selects -----------------------------
+            function selectButton(){
+                //get our selection (value == _id)
+                let selectionList = document.getElementById("booksList");
+                let selection = selectionList.value;
+                let responseTxt = document.getElementById("userResponse");
+
+                if(selection != "0"){
+
+                    //do something with the id
+                    //UD
+                    let messageObject = {
+                        messageType: "selection",
+                        username: currUsr,
+                        bookID: selection.toString() 
+                    }
+
+                    webSocket.send(JSON.stringify(messageObject));
+                    responseTxt.innerHTML="";
+                }
+                else{
+                    
+                    responseTxt.innerHTML="Please Select a valid option..";
+                }
+
+            }
+
+            function selectReturnButton(){
+                //get our selection (value == _id)
+                let selectionList = document.getElementById("booksReturnList");
+                let selection = selectionList.value;
+                let responseTxt = document.getElementById("userResponse");
+                if(selection != "0"){
+
+                    //do something with the id
+                    //UD
+                    let messageObject = {
+                        messageType: "return",
+                        username: currUsr,
+                        bookID: selection.toString() 
+                    }
+
+                    webSocket.send(JSON.stringify(messageObject));
+                    responseTxt.innerHTML="";
+                }
+                else{
+                    responseTxt.innerHTML="Please Select a valid option..";
+                }
+            }
+
+            function selectDeleteBookButton(){
+                //get our selection (value == _id)
+                let selectionList = document.getElementById("booksDeleteList");
+                let selection = selectionList.value;
+                let responseTxt = document.getElementById("userResponse");
+                console.log(selection+ "=selection");
+                if(selection != "0"){
+
+                    //do something with the id
+                    //UD
+                    let messageObject = {
+                        messageType: "deleteBook",
+                        bookID: selection.toString() 
+                    }
+
+                    webSocket.send(JSON.stringify(messageObject));
+                    responseTxt.innerHTML="";
+                }
+                else{
+                    responseTxt.innerHTML="Please Select a valid option..";
+                }
+            }
+
+            function selectDeleteUserButton(){
+                let selectionList = document.getElementById("userDeleteList");
+                let selection = selectionList.value;
+                let responseTxt = document.getElementById("userResponse");
+
+                if(selection != "0"){
+
+                    //do something with the id
+                    //UD
+                    let messageObject = {
+                        messageType: "deleteUser",
+                        username: selection.toString()
+                    }
+
+                    webSocket.send(JSON.stringify(messageObject));
+                    responseTxt.innerHTML="";
+                }
+                else{
+                    responseTxt.innerHTML="Please Select a valid option..";
+                }
+            }
+
+            function createUserButton(){
+                let usernameField = document.getElementById("usernameINPT");
+                let passwordField = document.getElementById("PasswordINPT");
+                let responseTxt = document.getElementById("userResponse");
+                let username = usernameField.value;
+                let password = passwordField.value;
+
+                let messageObject = {
+                    messageType: "createUser",
+                    username: username.toString(),
+                    password: password.toString()
+                }
+
+                webSocket.send(JSON.stringify(messageObject));
+                responseTxt.innerHTML="";
+
+            }
+
+            function createBookButton(){
+                let bookField = document.getElementById("bookINPT");
+                let bookName = bookField.value;
+                let responseTxt = document.getElementById("userResponse");
+
+                let messageObject = {
+                    messageType: "createBook",
+                    name: bookName.toString()
+                }
+
+                webSocket.send(JSON.stringify(messageObject));
+                responseTxt.innerHTML="";
+
+            }
+
+            function createLists(data){
+                createSelection(data);
+                createReturn(data);
+                createDeleteBooks(data);
+            }
+
+            function getLists(){
+                getBooksList();
+                getLoginList();
+            }
+
+            //this function fetches our books database contents
+            // R - Read
+            function getBooksList(){
+                fetch('http://localhost:9000/books')
+                .then(res => res.json())
+                .then(data=>createLists(data))
+            }
+
+            function getLoginList(){
+                fetch('http://localhost:9000/usernamelist')
+                .then(res => res.json())
+                .then(data=>createDeleteUser(data))
+            }
+
+            function sendMessageToServer(){
+                webSocket.send('hello')
+            }
+
+            function sendObjectToServer(){
+                let testObj = {
+                    name: "Jack",
+                    Job: "books" 
+                }
+                webSocket.send(JSON.stringify(testObj));
+            }
+
+            const webSocket = new WebSocket('ws://localhost:4500/');
+            webSocket.onmessage = (event) => {
+                console.log("server Says: " + event.data);
+                if(event.data == 'refresh'){
+                    getBooksList();
+                }
+            };
+
+        </script>
+    </head>
+    <body onload="onloadFunc()">
+        <div id="mocha"></div>
+    
+
+        <script src="https://unpkg.com/chai/chai.js"></script>
+        <script src="https://unpkg.com/mocha/mocha.js"></script>
+
+        <script class="mocha-init">
+            mocha.setup('tdd');
+            mocha.checkLeaks();
+        </script>
+        
+        <div id="usernameTXT">Hello!</div>
+
+        <div id="userResponse" style="color: red;"></div>
+        <div>Take out:</div>
+        <select id="booksList"></select>
+        <button id="booksBtn" onclick="selectButton()">Select Book</button>
+        <button id="booksBtn" onclick="getBooksList()">Refresh</button>
+        <br>
+        <div>Return:</div>
+        <select id="booksReturnList"></select>
+        <button id="booksBtn" onclick="selectReturnButton()">Select Book</button>
+        <br><br>
+        <h2>Admin Controls</h2>
+        <h3>Books:</h3>
+        <h4>Create Book:</h4>
+        <input type="text" placeholder="Enter Name..." name="bookINPT" id="bookINPT" required>
+        <button id="booksBtn" onclick="createBookButton()">Create Book</button>
+        <h4>Delete Book:</h4>
+        <select id="booksDeleteList"></select>
+        <button id="booksBtn" onclick="selectDeleteBookButton()">Select Book</button>
+        <h3>Users:</h3>
+        <h4>Create User:</h4>
+        <input type="text" placeholder="Enter Username..." name="usernameINPT" id="usernameINPT" required>
+        <input type="text" placeholder="Enter Password..." name="PasswordINPT" id="PasswordINPT" required>
+        <button id="booksBtn" onclick="createUserButton()">Create User</button>
+        <h4>Delete User:</h4>
+        <select id="userDeleteList"></select>
+        <button id="booksBtn" onclick="selectDeleteUserButton()">Select User</button>
+
+    </body>
+</html>

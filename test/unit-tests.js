@@ -1,7 +1,6 @@
 var chai = require('chai');
 var chaiHttp = require('chai-http');
 var chaiAsPromised = require('chai-as-promised');
-let sinon = require("sinon");
 let server = require("../server");
 let functions = require("../functions");
 var should = chai.should();
@@ -57,8 +56,24 @@ suite("Suite routes", function(){
         return Promise.resolve(functions.checkLoginDetailTest("test1", "wrongPassword")).should.eventually.equal(0);
     });
 
+
+    test("Testing User Creating", function(){
+        return Promise.resolve(functions.createUser()).should.eventually.equal(1);
+    });
+
+    test("Testing User Deletion", function(){
+        return Promise.resolve(functions.deleteUser()).should.eventually.equal(0);
+    });
+
+    test("Testing Book Creating", function(){
+        return Promise.resolve(functions.createBook()).should.eventually.equal(1);
+    });
+
+    test("Testing Book Deletion", function(){
+        return Promise.resolve(functions.deleteBook()).should.eventually.equal(0);
+    });
+
     suiteTeardown(function(){
-        console.log("teardown");
         server.closeServer();
     });
 });

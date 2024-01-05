@@ -1,5 +1,5 @@
 let server = require("./server");
-
+let bookID;
 
 function returnHello(){
     return "hello";
@@ -14,5 +14,31 @@ async function checkLoginDetailTest(usr,pass){
     return result;
 }
 
+async function createUser(){
+    await server.createUser("SuiteTest", "SuiteTestPass");
+    return (await server.findUser("SuiteTest"));
+}
+
+async function deleteUser(){
+    await server.deleteUser("SuiteTest");
+    return (await server.findUser("SuiteTest"));
+}
+
+async function createBook(){
+    bookID = await server.createBook("SuiteBookTest");
+    return (await server.findBook("SuiteBookTest"));
+}
+
+async function deleteBook(){
+    await server.deleteBook(bookID);
+    return (await server.findBook("SuiteBookTest"));
+}
+
 module.exports.returnHello = returnHello;
 module.exports.checkLoginDetailTest = checkLoginDetailTest;
+
+module.exports.createUser = createUser;
+module.exports.deleteUser = deleteUser;
+
+module.exports.createBook = createBook;
+module.exports.deleteBook = deleteBook;
