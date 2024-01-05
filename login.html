@@ -23,7 +23,7 @@
                 console.log(userId);
             }
 
-            const webSocket = new WebSocket('ws://localhost:456/');
+            const webSocket = new WebSocket('ws://localhost:4500/');
             webSocket.onmessage = (event) => {
                 //this section recieves server login success, and if the id matches, moves user onto next stage
                 try{

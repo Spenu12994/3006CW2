@@ -175,7 +175,7 @@
                 webSocket.send(JSON.stringify(testObj));
             }
 
-            const webSocket = new WebSocket('ws://localhost:456/');
+            const webSocket = new WebSocket('ws://localhost:4500/');
             webSocket.onmessage = (event) => {
                 console.log("server Says: " + event.data);
                 if(event.data == 'refresh'){
