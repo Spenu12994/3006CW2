@@ -111,7 +111,7 @@ async function refreshBook(){
         await issueRefresh();
     }
 
-    async function refreshLogin(){
+async function refreshLogin(){
         loginModel = mongoose.model("logins", loginSchema);
         await allLoginRoute();
         await issueRefresh();
