@@ -25,9 +25,11 @@ let loginModel = mongoose.model("logins", loginSchema);
 let bookSchema = new mongoose.Schema({_id: mongoose.Schema.ObjectId, Name: String, TakenOut: String, id: String});
 // Define a Model.D
 let bookModel = mongoose.model("books", bookSchema);
+
 let bookList;
 let loginList;
 var usernameList = [];
+
 startup();
 
 
@@ -272,6 +274,7 @@ app.listen(9000, () => {
 });
 
 
+//Websocketserver Running -----------------
 const { WebSocketServer } = require('ws')
 const sockserver = new WebSocketServer({ port:4500 })
 
