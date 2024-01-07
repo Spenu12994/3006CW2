@@ -50,6 +50,7 @@ async function listAllLogin() {
 async function allLoginRoute() {
     let login = await listAllLogin();
     loginList = login;
+    usernameList = [];
     loginList.forEach((element)=>{
         usernameList.push(element.username);
     });
